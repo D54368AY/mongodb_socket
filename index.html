@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #messages {  margin: 0; padding: 0; }
+      #messages > div { padding: 0.5rem 1rem; }
+      /* #messages > li:nth-child(odd) { background: #efefef; } */
+    </style>
+  </head>
+  <body>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+      </form>
+    <div id="messages"></div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let scoket=io();
+        let messages=document.getElementById('messages')
+        let form=document.getElementById('form')
+        let input=document.getElementById('input');
+        form.addEventListener('submit',function(e){
+            e.preventDefault();
+            if(input.value){
+                scoket.emit('message',input.value)
+                input.value=''
+            }
+        })
+        scoket.on('chat message',function(mesg){
+            let item=document.createElement('div');
+            let dateitem=document.createElement('p');
+            item.textContent=mesg.mesg;
+            dateitem.textContent=mesg.date;
+            messages.append(item);
+            messages.append(dateitem);
+            
+        })
+        scoket.on('get post',function(data){
+            if (data.length) {
+                data.forEach(element => {
+                    let item = document.createElement('div');
+                    let dateitem=document.createElement('p');
+                    item.textContent = element.post;
+                    dateitem.textContent=element.date;
+                    messages.appendChild(item);
+                    messages.appendChild(dateitem);
+                });
+            }
+        })
+    </script>
+
+  </body>
+</html>
